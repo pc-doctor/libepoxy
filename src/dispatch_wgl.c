@@ -128,16 +128,16 @@ DllMain(HINSTANCE dll, DWORD reason, LPVOID reserved)
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:
         data = TlsGetValue(gl_tls_index);
-		if (data != NULL) {
+        if (data != NULL) {
 	        LocalFree(data);
-			TlsSetValue(gl_tls_index, NULL);
-		}
+            TlsSetValue(gl_tls_index, NULL);
+        }
 
         data = TlsGetValue(wgl_tls_index);
-		if (data != NULL) {
+        if (data != NULL) {
 	        LocalFree(data);
-			TlsSetValue(wgl_tls_index, NULL);
-		}
+            TlsSetValue(wgl_tls_index, NULL);
+        }
 
         if (reason == DLL_PROCESS_DETACH) {
             TlsFree(gl_tls_index);

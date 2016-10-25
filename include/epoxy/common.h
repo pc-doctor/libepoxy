@@ -57,7 +57,7 @@ extern "C" {
     #endif
 #elif defined __ANDROID__
     #include <sys/cdefs.h>
-    #define EPOXY_IMPORTEXPORT __attribute__((visibility("default"))) __NDK_FPABI__
+    #define EPOXY_IMPORTEXPORT __attribute__((visibility("default")))
 #elif (defined __GNUC__ && __GNUC__ >= 4)  ||  (defined __SUNPRO_C && __SUNPRO_C >= 0x590)
     #define EPOXY_IMPORTEXPORT __attribute__((visibility("default")))
 #else

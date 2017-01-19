@@ -126,19 +126,12 @@
 
 #ifdef __GNUC__
 #define CONSTRUCT(_func) static void _func (void) __attribute__((constructor));
-#define DESTRUCT(_func) static void _func (void) __attribute__((destructor));
 #elif defined (_MSC_VER) && (_MSC_VER >= 1500)
 #define CONSTRUCT(_func) \
   static void _func(void); \
   static int _func ## _wrapper(void) { _func(); return 0; } \
   __pragma(section(".CRT$XCU",read)) \
-  __declspec(allocate(".CRT$XCU")) static int (* _array ## _func)(void) = _func ## _wrapper;
-
-#define DESTRUCT(_func) \
-  static void _func(void); \
-  static int _func ## _constructor(void) { atexit (_func); return 0; } \
-  __pragma(section(".CRT$XCU",read)) \
-  __declspec(allocate(".CRT$XCU")) static int (* _array ## _func)(void) = _func ## _constructor;
+  __declspec(allocate(".CRT$XCU")) static volatile int (* _constructFunc)(void) = _func ## _wrapper;
 
 #else
 #error "You will need constructor support for your compiler"
@@ -212,6 +205,16 @@ library_init(void)
 static bool
 get_dlopen_handle(void **handle, const char *lib_name, bool exit_on_fail)
 {
+#ifdef _WIN32
+	/*
+	Essentially a dummy call, but still does some minimal work. The motivation of putting this here
+	is to force the linker to _not_ remove the reference to it. The #pragma section above currently allows
+	the library (at static initialization) to initialize itself, particularly when built as a static lib.
+	The recommended approach from Microsoft is to provide this in an object's ctor that is statically initialized,
+	however this is still technically a C library, not C++, so there are some limitations.
+	*/
+	_constructFunc();
+#endif
     if (*handle)
         return true;
 
